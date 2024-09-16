@@ -122,7 +122,7 @@ func (r *Repository) SetupRoutes(app *fiber.App) {
 }
 
 func main() {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("settings.env")
 	if err != nil {
 		log.Fatal(err)
 	}
