@@ -47,7 +47,7 @@ func (r *Repository) CreateBook(context *fiber.Ctx) error {
 }
 
 func (r *Repository) DeleteBook(context *fiber.Ctx) error {
-	bookModel := models.Books{}
+	bookModel := models.Organization{}
 	id := context.Params("id")
 	if id == "" {
 		context.Status(http.StatusInternalServerError).JSON(&fiber.Map{
@@ -70,19 +70,39 @@ func (r *Repository) DeleteBook(context *fiber.Ctx) error {
 	return nil
 }
 
-func (r *Repository) GetBooks(context *fiber.Ctx) error {
-	bookModels := &[]models.Books{}
+func (r *Repository) GetOrganization(context *fiber.Ctx) error {
+	OrganizationModels := &[]models.Organization{}
 
-	err := r.DB.Find(bookModels).Error
+	err := r.DB.Find(OrganizationModels).Error
 	if err != nil {
 		context.Status(http.StatusBadRequest).JSON(
-			&fiber.Map{"message": "could not get books"})
+			&fiber.Map{"message": "could not get organization"})
 		return err
 	}
 
 	context.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": "books fetched successfully",
-		"data":    bookModels,
+		"message": "organization fetched successfully",
+		"data":    OrganizationModels,
+	})
+
+	return nil
+}
+
+func (r *Repository) GetPing(context *fiber.Ctx) error {
+
+	url := "http://localhost:8080/api"
+
+	resp, err := http.Get(url)
+
+	if err != nil {
+		context.Status(http.StatusInternalServerError).JSON(
+			&fiber.Map{"Body": "Internal Server Error"})
+		return err
+	}
+	defer resp.Body.Close()
+
+	context.Status(http.StatusOK).JSON(&fiber.Map{
+		"Body": "ok",
 	})
 	return nil
 }
@@ -90,7 +110,7 @@ func (r *Repository) GetBooks(context *fiber.Ctx) error {
 func (r *Repository) GetBookByID(context *fiber.Ctx) error {
 
 	id := context.Params("id")
-	bookModel := &models.Books{}
+	bookModel := &models.Organization{}
 	if id == "" {
 		context.Status(http.StatusInternalServerError).JSON(&fiber.Map{
 			"message": "id cannot be empty",
@@ -118,11 +138,12 @@ func (r *Repository) SetupRoutes(app *fiber.App) {
 	api.Post("/create_books", r.CreateBook)
 	api.Delete("delete_book/:id", r.DeleteBook)
 	api.Get("/get_books/:id", r.GetBookByID)
-	api.Get("/books", r.GetBooks)
+	api.Get("/organization", r.GetOrganization)
+	api.Get("/ping", r.GetPing)
 }
 
 func main() {
-	err := godotenv.Load("settings.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -140,7 +161,7 @@ func main() {
 	if err != nil {
 		log.Fatal("could not load the database")
 	}
-	err = models.MigrateBooks(db)
+	err = models.MigrateOrganization(db)
 	if err != nil {
 		log.Fatal("could not migrate db")
 	}
