@@ -71,9 +71,9 @@ func (r *Repository) DeleteBook(context *fiber.Ctx) error {
 }
 
 func (r *Repository) GetOrganization(context *fiber.Ctx) error {
-	OrganizationModels := &[]models.Organization{}
 
-	err := r.DB.Find(OrganizationModels).Error
+	organization := &[]models.Organization{}
+	err := r.DB.Find(organization).Error
 	if err != nil {
 		context.Status(http.StatusBadRequest).JSON(
 			&fiber.Map{"message": "could not get organization"})
@@ -82,7 +82,7 @@ func (r *Repository) GetOrganization(context *fiber.Ctx) error {
 
 	context.Status(http.StatusOK).JSON(&fiber.Map{
 		"message": "organization fetched successfully",
-		"data":    OrganizationModels,
+		"data":    organization,
 	})
 
 	return nil
